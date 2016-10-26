@@ -9,9 +9,9 @@ import (
 	"os"
 )
 
-// ReadLines reads the contents of the specified text file and
-// split the contents into lines.
-func ReadLines(filePath string) ([]string, error) {
+// ReadAllLines reads all lines from a file.
+// file must be encoded in UTF-8.
+func ReadAllLines(filePath string) ([]string, error) {
 	if f, err := os.Open(filePath); err != nil {
 		return nil, err
 	} else {
