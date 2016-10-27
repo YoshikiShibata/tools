@@ -39,6 +39,17 @@ func main() {
 		}
 		cvsContentsList = append(cvsContentsList, cvs)
 	}
+
+	// noOfRows := len(cvsContetnsList[0].lines)
+
+	fmt.Printf(",")
+	for _, cvsContents := range cvsContentsList {
+		fmt.Printf("%s,", cvsContents.name)
+		for i := 1; i < len(cvsContents.lines); i++ {
+			fmt.Printf(",")
+		}
+	}
+	fmt.Println()
 }
 
 func toCVSContents(f string) (*cvsContents, error) {
