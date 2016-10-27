@@ -1,6 +1,6 @@
 // Copyright © 2016 Yoshiki Shibata. All rights reserved.
 
-package file
+package files
 
 import (
 	"bufio"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/YoshikiShibata/tools/util/file"
+	"github.com/YoshikiShibata/tools/util/files"
 )
 
 // cvscombiner combines all rows in all cvs file.
@@ -19,7 +19,7 @@ type cvsFile struct {
 }
 
 func main() {
-	files, err := file.ListFiles(".",
+	_, err := files.ListFiles(".",
 		func(f string) bool {
 			return strings.HasSuffix(f, ".cvs")
 		})
@@ -30,13 +30,13 @@ func main() {
 	}
 }
 
-func toCVS(file string) (*cvsFile, error) {
-	lines, err := file.ReadAllLines(file)
+func toCVS(f string) (*cvsFile, error) {
+	lines, err := files.ReadAllLines(f)
 	if err != nil {
 		return nil, err
 	}
 
-	var cvs = cvsFile{file, nil}
+	var cvs = cvsFile{f, nil}
 
 	for _, line := range lines {
 		row := strings.Split(line, ",")
