@@ -40,16 +40,9 @@ func main() {
 		csvContentsList = append(csvContentsList, csv)
 	}
 
-	// noOfRows := len(csvContetnsList[0].lines)
+	printHeader(csvContentsList)
+	printEachLine(csvContentsList)
 
-	fmt.Printf(",")
-	for _, csvContents := range csvContentsList {
-		fmt.Printf("%s,", csvContents.name)
-		for i := 1; i < len(csvContents.lines); i++ {
-			fmt.Printf(",")
-		}
-	}
-	fmt.Println()
 }
 
 func toCVSContents(f string) (*csvContents, error) {
@@ -65,4 +58,31 @@ func toCVSContents(f string) (*csvContents, error) {
 		csv.lines = append(csv.lines, row)
 	}
 	return &csv, nil
+}
+
+func printHeader(csvContentsList []*csvContents) {
+	for _, csvContents := range csvContentsList {
+		name := csvContents.name
+		fmt.Printf(",%s,T", name[:len(name)-len(".csv")])
+		for i := 3; i < len(csvContents.lines[0]); i++ {
+			fmt.Printf(",")
+		}
+	}
+	fmt.Println()
+}
+
+func printEachLine(csvContentsList []*csvContents) {
+	noOfRows := len(csvContentsList[0].lines)
+	for row := 0; row < noOfRows; row++ {
+		fmt.Printf("%s", csvContentsList[0].lines[row][0])
+
+		for _, csvContents := range csvContentsList {
+			for i, column := range csvContents.lines[row] {
+				if i != 0 {
+					fmt.Printf(",%s", column)
+				}
+			}
+		}
+		fmt.Println()
+	}
 }

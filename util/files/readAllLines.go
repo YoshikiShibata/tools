@@ -34,6 +34,6 @@ func readLines(reader io.Reader) ([]string, error) {
 			fmt.Printf("%v\n", err)
 			return lines, err
 		}
-		lines = append(lines, line)
+		lines = append(lines, line[:len(line)-1])
 	}
 }
