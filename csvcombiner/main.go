@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/YoshikiShibata/tools/util/files"
@@ -14,8 +15,9 @@ import (
 
 type row []string // each row values
 type csvContents struct {
-	name  string // filename without ".csv"
-	lines []row
+	name   string // filename without ".csv"
+	lines  []row
+	totals []int // totals of except the first column
 }
 
 func main() {
@@ -37,11 +39,14 @@ func main() {
 			fmt.Printf("%v\n", err)
 			os.Exit(1)
 		}
+
+		computeTotals(csv)
 		csvContentsList = append(csvContentsList, csv)
 	}
 
 	printHeader(csvContentsList)
 	printEachLine(csvContentsList)
+	printTotals(csvContentsList)
 
 }
 
@@ -51,13 +56,28 @@ func toCVSContents(f string) (*csvContents, error) {
 		return nil, err
 	}
 
-	var csv = csvContents{f, nil}
+	var csv = csvContents{f, nil, nil}
 
 	for _, line := range lines {
 		row := strings.Split(line, ",")
 		csv.lines = append(csv.lines, row)
 	}
 	return &csv, nil
+}
+
+func computeTotals(csvC *csvContents) {
+	csvC.totals = make([]int, len(csvC.lines[0])-1)
+
+	for _, row := range csvC.lines {
+		for i := 1; i < len(row); i++ {
+			v, err := strconv.Atoi(row[i])
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				os.Exit(1)
+			}
+			csvC.totals[i-1] += v
+		}
+	}
 }
 
 func printHeader(csvContentsList []*csvContents) {
@@ -85,4 +105,14 @@ func printEachLine(csvContentsList []*csvContents) {
 		}
 		fmt.Println()
 	}
+}
+
+func printTotals(cvsContentsList []*csvContents) {
+	fmt.Printf("Total")
+	for _, csvC := range cvsContentsList {
+		for _, total := range csvC.totals {
+			fmt.Printf(",%d", total)
+		}
+	}
+	fmt.Println()
 }
