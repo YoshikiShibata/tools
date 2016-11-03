@@ -72,7 +72,6 @@ func computeTotals(csvC *csvContents) {
 		for i := 1; i < len(row); i++ {
 			v, err := strconv.Atoi(row[i])
 			if err != nil {
-				fmt.Printf("%v\n", err)
 				continue // ignore
 			}
 			csvC.totals[i-1] += v
