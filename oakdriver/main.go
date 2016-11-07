@@ -7,8 +7,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/YoshikiShibata/tools/util/files"
 )
@@ -174,12 +174,9 @@ func extractExitCode(cmdErr error) int {
 	if !ok {
 		exit(cmdErr, 1)
 	}
-	errMsg := exitError.Error()
-	tokens := strings.Split(errMsg, " ")
-	exitCode, err := strconv.Atoi(tokens[2])
-	if err != nil {
-		exit(err, 1)
-	}
-	return exitCode
 
+	if s, ok := exitError.Sys().(syscall.WaitStatus); ok {
+		return s.ExitStatus()
+	}
+	panic(exitError)
 }
