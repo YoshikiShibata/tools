@@ -67,6 +67,7 @@ func main() {
 
 	for _, d := range readDirectives(os.Args[1]) {
 		fmt.Printf("%s,", d.directory)
+		fmt.Fprintf(os.Stderr, "%s:\n", d.directory)
 
 		run(cwd, &d)
 		fmt.Printf(",")
