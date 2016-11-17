@@ -35,20 +35,20 @@ const (
 
 var runCodeOutput = map[int]string{
 	0:                    "2",
-	codeError:            "err",
-	codeCompileError:     "CE",
-	codeExecutionTimeout: "fail",
-	codeTestsFailed:      "fail",
+	codeError:            "Error",
+	codeCompileError:     "CompileError",
+	codeExecutionTimeout: "Timeout",
+	codeTestsFailed:      "Failed",
 	codeNoMainMethod:     "1",
-	codeMainFailed:       "fail",
+	codeMainFailed:       "Failed",
 }
 
 var testCodeOutput = map[int]string{
 	0:                    "2",
-	codeError:            "err",
-	codeCompileError:     "CE",
-	codeExecutionTimeout: "fail",
-	codeTestsFailed:      "fail",
+	codeError:            "Error",
+	codeCompileError:     "CompileError",
+	codeExecutionTimeout: "Timeout",
+	codeTestsFailed:      "Failed",
 	codeNoMainMethod:     "fail",
 	codeMainFailed:       "fail",
 }
