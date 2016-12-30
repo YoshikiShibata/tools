@@ -28,9 +28,14 @@ func readLines(reader io.Reader) ([]string, error) {
 	for {
 		line, err := r.ReadString('\n')
 		if err != nil {
+			if len(line) > 0 {
+				lines = append(lines, line)
+			}
+
 			if err == io.EOF {
 				return lines, nil
 			}
+
 			fmt.Printf("%v\n", err)
 			return lines, err
 		}
