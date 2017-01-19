@@ -122,7 +122,7 @@ func run(cwd string, d *directive) {
 		return
 	}
 
-	args := []string{"run"}
+	args := []string{"-l", "run"}
 	args = append(args, d.runOptions...)
 
 	cmd := exec.Command("oak", args...)
@@ -142,7 +142,7 @@ func test(cwd string, d *directive) {
 		return
 	}
 
-	cmd := exec.Command("oak", "test")
+	cmd := exec.Command("oak", "-l", "test")
 	redirect(cmd)
 	err := cmd.Run()
 	if err == nil {
