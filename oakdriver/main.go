@@ -1,4 +1,4 @@
-// Copyright © 2016 Yoshiki Shibata. All rights reserved.
+// Copyright © 2016, 2017 Yoshiki Shibata. All rights reserved.
 
 package main
 
@@ -56,7 +56,7 @@ var testCodeOutput = map[int]string{
 // oakdriver runs oak command for Java / Java 8 programing courses.
 // The output of the oakdriver is the os.Stdout.
 func main() {
-	if len(os.Args) != 2 {
+	if len(os.Args) != 3 {
 		showUsage()
 	}
 	cwd, err := os.Getwd()
@@ -67,7 +67,7 @@ func main() {
 
 	for _, d := range readDirectives(os.Args[1]) {
 		fmt.Printf("%s,", d.directory)
-		fmt.Fprintf(os.Stderr, "%s:\n", d.directory)
+		fmt.Fprintf(os.Stderr, "%s(%s):\n", d.directory, os.Args[2])
 
 		run(cwd, &d)
 		fmt.Printf(",")
@@ -78,7 +78,7 @@ func main() {
 }
 
 func showUsage() {
-	fmt.Fprintf(os.Stderr, "usage: oakdriver [directive csv file]")
+	fmt.Fprintf(os.Stderr, "usage: oakdriver [directive csv file] [name]")
 	os.Exit(1)
 }
 
