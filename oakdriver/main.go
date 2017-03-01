@@ -3,11 +3,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/YoshikiShibata/tools/util/files"
@@ -53,6 +56,8 @@ var testCodeOutput = map[int]string{
 	codeMainFailed:       "fail",
 }
 
+const concurrent = 3
+
 // oakdriver runs oak command for Java / Java 8 programing courses.
 // The output of the oakdriver is the os.Stdout.
 func main() {
@@ -65,15 +70,37 @@ func main() {
 		exit(err, 1)
 	}
 
-	for _, d := range readDirectives(os.Args[1]) {
-		fmt.Printf("%s,", d.directory)
-		fmt.Fprintf(os.Stderr, "%s(%s):\n", d.directory, os.Args[2])
+	directives := readDirectives(os.Args[1])
+	results := make([]*bytes.Buffer, 0, len(directives))
 
-		run(cwd, &d)
-		fmt.Printf(",")
-		test(cwd, &d)
+	sem := make(chan struct{}, concurrent)
 
-		fmt.Println()
+	var wg sync.WaitGroup
+
+	for i, d := range directives {
+		var buf bytes.Buffer
+		results = append(results, &buf)
+
+		wg.Add(1)
+		go func(buf io.Writer, d directive, index int) {
+			sem <- struct{}{}
+			fmt.Fprintf(buf, "%s,", d.directory)
+			fmt.Fprintf(os.Stderr, "%s(%s):\n", d.directory, os.Args[2])
+
+			run(buf, cwd, &d, index)
+			fmt.Fprintf(buf, ",")
+			test(buf, cwd, &d, index)
+
+			fmt.Fprintln(buf)
+			<-sem
+			wg.Done()
+		}(&buf, d, i)
+	}
+
+	wg.Wait()
+
+	for _, buf := range results {
+		fmt.Print(buf.String())
 	}
 }
 
@@ -116,58 +143,50 @@ func readDirectives(file string) []directive {
 	return directives
 }
 
-func run(cwd string, d *directive) {
+func tempOption(index int) string {
+	return "-temp=/tmp/oak" + strconv.Itoa(index%concurrent)
+}
+
+func run(buf io.Writer, cwd string, d *directive, index int) {
 	if err := os.Chdir(cwd + "/src/" + d.directory); err != nil {
-		fmt.Printf("N/A")
+		fmt.Fprintf(buf, "N/A")
 		return
 	}
 
-	args := []string{"-l", "run"}
+	args := []string{"-l", tempOption(index), "run"}
 	args = append(args, d.runOptions...)
 
 	cmd := exec.Command("oak", args...)
 	redirect(cmd)
 	err := cmd.Run()
 	if err == nil {
-		fmt.Printf("%s", runCodeOutput[0])
+		fmt.Fprintf(buf, "%s", runCodeOutput[0])
 	} else {
 		exitCode := extractExitCode(err)
-		fmt.Printf("%s", runCodeOutput[exitCode])
+		fmt.Fprintf(buf, "%s", runCodeOutput[exitCode])
 	}
 }
 
-func test(cwd string, d *directive) {
+func test(buf io.Writer, cwd string, d *directive, index int) {
 	if err := os.Chdir(cwd + "/test/" + d.directory); err != nil {
-		fmt.Printf("N/A")
+		fmt.Fprintf(buf, "N/A")
 		return
 	}
 
-	cmd := exec.Command("oak", "-l", "test")
+	cmd := exec.Command("oak", "-l", tempOption(index), "test")
 	redirect(cmd)
 	err := cmd.Run()
 	if err == nil {
-		fmt.Printf("%s", testCodeOutput[0])
+		fmt.Fprintf(buf, "%s", testCodeOutput[0])
 	} else {
 		exitCode := extractExitCode(err)
-		fmt.Printf("%s", testCodeOutput[exitCode])
+		fmt.Fprintf(buf, "%s", testCodeOutput[exitCode])
 	}
 }
 
 func redirect(cmd *exec.Cmd) {
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		exit(err, codeError)
-	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		exit(err, codeError)
-	}
-	go func() {
-		io.Copy(os.Stderr, stderr)
-	}()
-	go func() {
-		io.Copy(os.Stderr, stdout)
-	}()
+	cmd.Stdout = os.Stderr
+	cmd.Stderr = os.Stderr
 }
 
 func extractExitCode(cmdErr error) int {
