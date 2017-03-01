@@ -81,9 +81,9 @@ func main() {
 		var buf bytes.Buffer
 		results = append(results, &buf)
 
+		sem <- struct{}{}
 		wg.Add(1)
 		go func(buf io.Writer, d directive, index int) {
-			sem <- struct{}{}
 			fmt.Fprintf(buf, "%s,", d.directory)
 			fmt.Fprintf(os.Stderr, "%s(%s):\n", d.directory, os.Args[2])
 
