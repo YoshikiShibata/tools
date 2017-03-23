@@ -65,10 +65,10 @@ func main() {
 		showUsage()
 	}
 	cwd, err := os.Getwd()
-	fmt.Fprintf(os.Stderr, "CWD = %s\n", cwd)
 	if err != nil {
 		exit(err, 1)
 	}
+	fmt.Fprintf(os.Stderr, "CWD = %s\n", cwd)
 
 	directives := readDirectives(os.Args[1])
 	results := make([]*bytes.Buffer, 0, len(directives))
