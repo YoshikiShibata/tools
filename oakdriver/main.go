@@ -125,6 +125,11 @@ func readDirectives(file string) []directive {
 			continue
 		}
 		columns := strings.Split(line, ",")
+
+		for i := 0; i < len(columns); i++ {
+			columns[i] = strings.TrimSpace(columns[i])
+		}
+
 		if len(columns) == 1 {
 			d := directive{columns[0], nil}
 			directives = append(directives, d)
