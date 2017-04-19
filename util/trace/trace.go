@@ -1,3 +1,5 @@
+// Copyright © 2017 Yoshiki Shibata. All rights reserved.
+
 package trace
 
 import (
@@ -9,5 +11,5 @@ import (
 func Trace(msg string) func() {
 	start := time.Now()
 	log.Printf("enter %s", msg)
-	return func() { log.Printf("exit %s (%s)", msg, time.Since(start)) }
+	return func() { log.Printf("exit  %s (%s)", msg, time.Since(start)) }
 }
