@@ -1,10 +1,9 @@
-// Copyright © 2016 Yoshiki Shibata. All rights reserved.
+// Copyright © 2016, 2018 Yoshiki Shibata. All rights reserved.
 
 package files
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 )
@@ -16,29 +15,18 @@ func ReadAllLines(filePath string) ([]string, error) {
 		return nil, err
 	} else {
 		defer f.Close()
-
 		return readLines(f)
 	}
 }
 
 func readLines(reader io.Reader) ([]string, error) {
 	lines := []string{}
-	r := bufio.NewReader(reader)
-
-	for {
-		line, err := r.ReadString('\n')
-		if err != nil {
-			if len(line) > 0 {
-				lines = append(lines, line)
-			}
-
-			if err == io.EOF {
-				return lines, nil
-			}
-
-			fmt.Printf("%v\n", err)
-			return lines, err
-		}
-		lines = append(lines, line[:len(line)-1])
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return lines, nil
 }
